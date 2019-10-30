@@ -1,0 +1,9 @@
+imageclassify.c:299:9:imageclassify_configure_activations	24	static
+imageclassify.c:327:9:imageclassify_configure_weights	24	static
+imageclassify.c:359:9:ai_imageclassify_get_info	128	static
+imageclassify.c:406:10:ai_imageclassify_get_error	16	static
+imageclassify.c:412:10:ai_imageclassify_create	24	static
+imageclassify.c:422:11:ai_imageclassify_destroy	16	static
+imageclassify.c:428:9:ai_imageclassify_init	24	static
+imageclassify.c:443:8:ai_imageclassify_run	24	static
+imageclassify.c:450:8:ai_imageclassify_forward	16	static

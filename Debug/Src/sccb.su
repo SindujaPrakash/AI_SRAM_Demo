@@ -1,0 +1,3 @@
+sccb.c:50:6:SCCB_GPIO_Config	4	static
+sccb.c:91:9:DCMI_SingleRandomWrite	32	static
+sccb.c:108:9:DCMI_SingleRandomRead	32	static

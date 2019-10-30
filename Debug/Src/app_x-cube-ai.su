@@ -1,0 +1,5 @@
+app_x-cube-ai.c:77:5:aiInit	64	static
+app_x-cube-ai.c:108:5:aiRun	24	static
+app_x-cube-ai.c:138:6:MX_X_CUBE_AI_Init	8	static
+app_x-cube-ai.c:150:6:MX_X_CUBE_AI_Process	80	static
+app_x-cube-ai.c:213:13:bubblesort	40	static

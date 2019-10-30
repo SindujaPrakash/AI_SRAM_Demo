@@ -1,0 +1,15 @@
+dcmi_ov9655.c:46:9:DCMI_OV9655Config	8	static
+dcmi_ov9655.c:79:6:DCMI_Config	4	static
+dcmi_ov9655.c:207:6:MCO1_Init	4	static
+dcmi_ov9655.c:230:6:DCMI_OV9655_Reset	8	static
+dcmi_ov9655.c:245:6:DCMI_OV9655_QVGASizeSetup	8	static
+dcmi_ov9655.c:558:6:DCMI_OV9655_QQVGASizeSetup	8	static
+dcmi_ov9655.c:868:9:DCMI_OV9655_ReadID	24	static
+dcmi_ov9655.c:901:6:DCMI_OV9655_SetPrescaler	16	static
+dcmi_ov9655.c:916:6:DCMI_OV9655_SelectOutputFormat	16	static
+dcmi_ov9655.c:931:6:DCMI_OV9655_SelectFormatResolution	16	static
+dcmi_ov9655.c:942:6:DCMI_OV9655_SetRegister	16	static
+dcmi_ov9655.c:956:6:DCMI_OV9655_HREFControl	16	static
+dcmi_ov9655.c:970:6:DCMI_OV9655_SelectRGBOption	16	static
+dcmi_ov9655.c:979:13:Delay	16	static
+dcmi_ov9655.c:984:13:Delay_ms	16	static
