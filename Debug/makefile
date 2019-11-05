@@ -41,7 +41,7 @@ all: AI_SRAM_Demo.elf secondary-outputs
 
 # Tool invocations
 AI_SRAM_Demo.elf: $(OBJS) $(USER_OBJS) C:\Users\Prakashs\STM32CubeIDE\workspace_1.0.2\AI_SRAM_Demo\STM32F407IGTX_FLASH.ld
-	arm-none-eabi-gcc -o "AI_SRAM_Demo.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Prakashs\STM32CubeIDE\workspace_1.0.2\AI_SRAM_Demo\STM32F407IGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="AI_SRAM_Demo.map" -Wl,--gc-sections -static -L../Middlewares/ST/AI/Lib --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "AI_SRAM_Demo.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Prakashs\STM32CubeIDE\workspace_1.0.2\AI_SRAM_Demo\STM32F407IGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="AI_SRAM_Demo.map" -Wl,--gc-sections -static -L../Middlewares/ST/AI/Lib --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
