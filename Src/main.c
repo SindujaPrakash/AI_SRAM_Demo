@@ -71,16 +71,21 @@ SRAM_HandleTypeDef hsram2;
 #define XPos							0
 #define YPos							0
 #define BUFFER_LEN                     0x9600 //320*240*2/4 (Number of words)
+#define DISPLAY_BUFFER_LEN			   XSIZE
 #define SRAM_BANK_ADDR                 ((uint32_t)0x68000000)
 
 uint32_t SRAM_Addr = SRAM_BANK_ADDR;
+uint16_t camera_bufferDisplay[DISPLAY_BUFFER_LEN];
 uint32_t SRAM_Jump_Addr = 0x0280;
 uint16_t resize_160[160*120];
 uint8_t resizedImage[28*28];
 uint8_t grayscale[160*120];
 GPIO_PinState pushBtn;
-char msg[20]="Ready for Capture";
-uint8_t* displayMsg=msg;
+int32_t y_offset = -5;    /* y_offset is set by user */
+int8_t FrameXferCplt = 0;
+int8_t LineXferCplt = 0;
+uint16_t LineCounter = 0;
+uint8_t restart=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -170,18 +175,39 @@ int main(void)
 	  BSP_LCD_Clear(LCD_COLOR_WHITE);
 	  BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
 	  //BSP_LCD_DisplayStringAt(0, 100, displayMsg, CENTER_MODE);
+	  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)camera_bufferDisplay, DISPLAY_BUFFER_LEN/2);
 
   while (1)
   {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
+	  if(LineXferCplt)
+	      {
+	        /* Resolution of the output image is 320 * 242, but 4 pixels in Y axis are discarded. */
+	        if((LineCounter >= YSIZE + 2) && FrameXferCplt)
+	        {
+	          /* Set image position */
+	          ili9325_SetCursor(0, YSIZE + y_offset);
+	          /* Prepare to write GRAM (0x22) */
+	          LCD_IO_WriteReg(LCD_REG_34);
+	          FrameXferCplt = 0;
+	          LineCounter = 0;
+	        }
+	        /* Converts uint16_t camera_buffer to uint8_t, so the actual length is BUFFER_LEN * 2 */
+	        LCD_IO_WriteMultipleData((uint8_t *)camera_bufferDisplay, DISPLAY_BUFFER_LEN*2);
+	        /* Converts uint16_t camera_buffer to uint32_t, so the actual length is BUFFER_LEN / 2 */
+	        HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)camera_bufferDisplay, DISPLAY_BUFFER_LEN/2);
+	        LineXferCplt = 0;
+	      }
 	  pushBtn = HAL_GPIO_ReadPin(Push_button_GPIO_Port, Push_button_Pin);
 	  if(pushBtn == GPIO_PIN_RESET)
 	  {
+		  HAL_DCMI_Stop(&hdcmi);
 		  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED_Pin_Ready, GPIO_PIN_RESET);
 		  HAL_GPIO_WritePin(LED_GPIO_PORT, LED_Pin, GPIO_PIN_SET);
-		  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)SRAM_Addr, BUFFER_LEN);
+		  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)SRAM_Addr, BUFFER_LEN);
 		  HAL_Delay(1000);
+		  HAL_DCMI_Stop(&hdcmi);
 		  HAL_GPIO_WritePin(LED_GPIO_PORT, LED_Pin_Capture, GPIO_PIN_SET);
 		  BSP_LCD_Clear(LCD_COLOR_WHITE);
 		  ImageResize((uint8_t*)SRAM_Addr, 320, 240, 2, 0, 0, 0, 0, (uint8_t*)resize_160, 160, 120);
@@ -190,13 +216,20 @@ int main(void)
 		  ImageResize((uint8_t*)grayscale, 160, 120, 1, 0, 0, 0, 0, (uint8_t*)resizedImage, 28, 28);
 		  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED_Pin_Inference, GPIO_PIN_SET);
 		  MX_X_CUBE_AI_Process();
+		  HAL_Delay(2000);
+		  restart=1;
 	  }
 	  else if(pushBtn == GPIO_PIN_SET)
 	  {
-		  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED_Pin_Ready, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(LED_GPIO_PORT, LED_Pin, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(LED_GPIO_PORT, LED_Pin_Capture, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED_Pin_Inference, GPIO_PIN_RESET);
+		  if(restart)
+		  {
+			  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED_Pin_Ready, GPIO_PIN_SET);
+			  HAL_GPIO_WritePin(LED_GPIO_PORT, LED_Pin, GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(LED_GPIO_PORT, LED_Pin_Capture, GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED_Pin_Inference, GPIO_PIN_RESET);
+			  restart=0;
+		  }
+
 	  }
 
   }
@@ -603,7 +636,27 @@ static void MX_FSMC_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+  * @brief  Frame Event callback.
+  * @param  None
+  * @retval None
+  */
+void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
+{
+  /* the first frame will be abnormal, discarded */
+  FrameXferCplt=1;
+}
 
+void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi)
+{
+	LineCounter++;
+	LineXferCplt=1;
+}
+
+void HAL_DCMI_ErrorCallback(DCMI_HandleTypeDef *hdcmi)
+{
+	printf("%d",hdcmi->ErrorCode);
+}
 
 // Image rescaling using interpolation
 resizePixels(uint16_t* pixels,uint16_t w1,uint16_t h1,uint16_t w2,uint16_t h2) {
