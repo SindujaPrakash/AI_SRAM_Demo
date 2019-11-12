@@ -47,7 +47,6 @@ uint32_t t2;
 /* USER CODE BEGIN EC */
 extern I2C_HandleTypeDef hi2c2;
 extern uint8_t resizedImage[28*28];
-
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

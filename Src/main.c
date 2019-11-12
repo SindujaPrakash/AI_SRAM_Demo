@@ -79,6 +79,8 @@ uint16_t resize_160[160*120];
 uint8_t resizedImage[28*28];
 uint8_t grayscale[160*120];
 GPIO_PinState pushBtn;
+char msg[20]="Ready for Capture";
+uint8_t* displayMsg=msg;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -167,7 +169,7 @@ int main(void)
 
 	  BSP_LCD_Clear(LCD_COLOR_WHITE);
 	  BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
-	  BSP_LCD_DisplayStringAt(0, 100, ptr, CENTER_MODE);
+	  //BSP_LCD_DisplayStringAt(0, 100, displayMsg, CENTER_MODE);
 
   while (1)
   {
