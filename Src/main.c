@@ -216,6 +216,7 @@ int main(void)
 		  ImageResize((uint8_t*)grayscale, 160, 120, 1, 0, 0, 0, 0, (uint8_t*)resizedImage, 28, 28);
 		  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED_Pin_Inference, GPIO_PIN_SET);
 		  MX_X_CUBE_AI_Process();
+		  HAL_Delay(2000);
 		  restart=1;
 	  }
 	  else if(pushBtn == GPIO_PIN_SET)
